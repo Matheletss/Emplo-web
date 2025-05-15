@@ -31,9 +31,8 @@ __pycache__/
 *.so
 
 # Ignore virtual environments
-venv/
+
 env/
-.venv/
 .env/
 .env
 *.env
