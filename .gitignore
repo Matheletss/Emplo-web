@@ -31,8 +31,8 @@ __pycache__/
 *.so
 
 # Ignore virtual environments
-"Python_Backend/venv/" 
 venv/
+Python_Backend/venv/
 env/
 .venv/
 .env/
