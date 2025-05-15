@@ -1,7 +1,7 @@
 from pydantic_core import CoreSchema
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, GetJsonSchemaHandler
+from pydantic import BaseModel, GetJsonSchemaHandler, EmailStr
 from bson import ObjectId
 from pydantic import Field
 
@@ -28,7 +28,8 @@ class Profile(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str  # This will match the auth user ID
     name: Optional[str] = None
-    email: Optional[str] = None
+    email: EmailStr
+    password: Optional[str] = None
     skills: Optional[str] = None
     experience: Optional[str] = None
     projects: Optional[str] = None

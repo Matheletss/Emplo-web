@@ -8,3 +8,5 @@ spacy
 stanza
 nltk
 python-multipart
+pydantic[email]
+bcrypt
