@@ -1,0 +1,107 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 30 13% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 30 13% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 13% 15%;
+
+    --primary: 32 20% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 32 14% 83%;
+    --secondary-foreground: 30 13% 15%;
+
+    --muted: 32 14% 92%;
+    --muted-foreground: 30 10% 40%;
+
+    --accent: 32 30% 70%;
+    --accent-foreground: 30 13% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 32 14% 83%;
+    --input: 32 14% 83%;
+    --ring: 32 20% 40%;
+
+    --radius: 0.8rem;
+
+    --sidebar-background: 40 33% 98%;
+    --sidebar-foreground: 30 13% 15%;
+    --sidebar-primary: 32 20% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 32 14% 92%;
+    --sidebar-accent-foreground: 30 13% 15%;
+    --sidebar-border: 32 14% 83%;
+    --sidebar-ring: 32 20% 40%;
+  }
+
+  .dark {
+    --background: 30 15% 10%;
+    --foreground: 32 14% 92%;
+
+    --card: 30 15% 12%;
+    --card-foreground: 32 14% 92%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 32 14% 92%;
+
+    --primary: 32 30% 70%;
+    --primary-foreground: 30 15% 10%;
+
+    --secondary: 30 15% 20%;
+    --secondary-foreground: 32 14% 92%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 32 10% 70%;
+
+    --accent: 30 15% 25%;
+    --accent-foreground: 32 14% 92%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 32 14% 92%;
+
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 32 30% 70%;
+    
+    --sidebar-background: 30 15% 10%;
+    --sidebar-foreground: 32 14% 92%;
+    --sidebar-primary: 32 30% 70%;
+    --sidebar-primary-foreground: 30 15% 10%;
+    --sidebar-accent: 30 15% 20%;
+    --sidebar-accent-foreground: 32 14% 92%;
+    --sidebar-border: 30 15% 20%;
+    --sidebar-ring: 32 30% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-hirena-beige text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}

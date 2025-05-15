@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pymongo
+pdf2image
+pytesseract
+Pillow
+spacy
+stanza
+nltk
+python-multipart
