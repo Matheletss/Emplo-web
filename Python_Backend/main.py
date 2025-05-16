@@ -3,8 +3,10 @@ from app.routes import router as app_router  # Import the FastAPI router from ro
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from api.resume_parser_api.resume import router as resume_router  # Import the FastAPI router from resume_parser_api 
+# from api.auth.auth import router as auth_router  # Import the FastAPI router from auth.py
+from api.authentication.auth import router as auth_router  # Import the FastAPI router from auth.py
 from fastapi import UploadFile, File
-
+import os
 app = FastAPI()
 
 # Add CORS middleware
@@ -16,8 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the resume parser API router
+# Include the API router
 app.include_router(resume_router)
+app.include_router(auth_router)
 
 # # Serve static files
 # app.mount("/static", StaticFiles(directory="static"), name="static")

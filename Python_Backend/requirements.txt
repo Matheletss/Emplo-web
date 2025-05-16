@@ -10,3 +10,5 @@ nltk
 python-multipart
 pydantic[email]
 bcrypt
+pydantic-settings
+pyjwt[crypto]
