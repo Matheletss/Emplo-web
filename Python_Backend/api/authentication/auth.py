@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -6,6 +6,9 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from app.models import Profile
 from app.db import profiles_collection
 from api.authentication.models import ProfileWithToken, ProfileUpdate
+from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
+from api.resume_parser_api.parser.parse_resume import parse_resume
+import os
 import logging
 
 router = APIRouter()
@@ -90,6 +93,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
     }
     return user_data
 
+
 @router.put("/profile", response_model=Profile)
 async def update_profile(
     profile_update: ProfileUpdate,
@@ -138,3 +142,75 @@ async def update_profile(
     }
 
     return user_data
+
+@router.put("/profile/resume", response_model=Profile)
+async def update_profile_from_resume(
+    file: UploadFile = File(...),
+    token: str = Depends(oauth2_scheme),
+):
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Only PDF files are supported")
+
+    # Decode JWT and get email (reuse your logic)
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Could not validate credentials")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+    user = profiles_collection.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Save file temporarily
+    os.makedirs("/tmp", exist_ok=True)
+    pdf_path = f"/tmp/{file.filename}"
+    try:
+        content = await file.read()
+        with open(pdf_path, "wb") as f:
+            f.write(content)
+        logging.info(f"Saved file at {pdf_path}")
+
+        # Extract text from PDF (your existing function)
+        text = extract_text_from_pdf(pdf_path)
+        if not text:
+            raise HTTPException(status_code=400, detail="Could not extract text from PDF")
+
+        # Parse resume text (your existing function)
+        parsed_data = parse_resume(text)
+        if not parsed_data:
+            raise HTTPException(status_code=400, detail="Could not parse resume content")
+
+        # Validate parsed data using Pydantic ProfileUpdate
+        update_data = ProfileUpdate(**parsed_data).model_dump(exclude_unset=True)
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No valid fields found in resume")
+
+        # Update MongoDB profile
+        profiles_collection.update_one({"email": email}, {"$set": update_data})
+
+        # Fetch updated user
+        updated_user = profiles_collection.find_one({"email": email})
+
+        # Prepare response dict (similar to your /profile PUT)
+        user_data = {
+            "id": str(updated_user["_id"]),
+            "user_id": updated_user.get("user_id"),
+            "name": updated_user.get("name"),
+            "email": updated_user.get("email"),
+            "skills": updated_user.get("skills"),
+            "experience": updated_user.get("experience"),
+            "projects": updated_user.get("projects"),
+            "miscellaneous": updated_user.get("miscellaneous"),
+        }
+
+        return user_data
+
+    finally:
+        try:
+            os.remove(pdf_path)
+            logging.info(f"Deleted temp file {pdf_path}")
+        except Exception as e:
+            logging.error(f"Failed to delete temp file: {e}")

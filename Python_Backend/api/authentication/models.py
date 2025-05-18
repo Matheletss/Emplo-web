@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
+from typing import List
 from typing import Optional
 
 class ProfileWithToken(BaseModel):
@@ -9,8 +10,8 @@ class ProfileWithToken(BaseModel):
     
 class ProfileUpdate(BaseModel):
     name: Optional[str]=None
-    skills: Optional[str]=None
-    experience: Optional[str]=None
-    projects: Optional[str]=None
-    miscellaneous: Optional[str]=None
+    skills: Optional[List[str]]=None
+    experience: Optional[List[str]]=None
+    projects: Optional[List[str]]=None
+    miscellaneous: Optional[List[str]]=None
     password: Optional[str]=None

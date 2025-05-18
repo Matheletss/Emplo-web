@@ -1,6 +1,6 @@
 from pydantic_core import CoreSchema
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union, List
 from pydantic import BaseModel, GetJsonSchemaHandler, EmailStr
 from bson import ObjectId
 from pydantic import Field
@@ -30,10 +30,10 @@ class Profile(BaseModel):
     name: Optional[str] = None
     email: EmailStr
     password: Optional[str] = None
-    skills: Optional[str] = None
-    experience: Optional[str] = None
-    projects: Optional[str] = None
-    miscellaneous: Optional[str] = None
+    skills: Optional[Union[str, List[str]]] = None
+    experience: Optional[Union[str, List[str]]] = None
+    projects: Optional[Union[str, List[str]]] = None
+    miscellaneous: Optional[Union[str, List[str]]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

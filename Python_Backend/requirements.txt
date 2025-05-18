@@ -12,3 +12,4 @@ pydantic[email]
 bcrypt
 pydantic-settings
 pyjwt[crypto]
+motor

@@ -10,7 +10,7 @@ def extract_name(text):
     blacklist_keywords = [
         "python", "c++", "java", "tensorflow", "mongodb", "eclipse", "github",
         "linkedin", "email", "skills", "objective", "contact", "resume", "intern",
-        "opshift", "engineer"
+        "opshift", "engineer", "javaScript"
     ]
 
     for line in raw_lines[:15]:
@@ -65,7 +65,7 @@ def parse_resume(text: str) -> dict:
 
     skills_keywords = [
         "Python", "C++", "Java", "TensorFlow", "Scikit-Learn", "React",
-        "HTML", "CSS", "SQL", "MongoDB", "OpenShift", "Eclipse", "Mercurial"
+        "HTML", "CSS", "SQL", "MongoDB", "OpenShift", "Eclipse", "Mercurial", "JavaScript"
     ]
     data["skills"] = [skill for skill in skills_keywords if skill.lower() in text.lower()]
 

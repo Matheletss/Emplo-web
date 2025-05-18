@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, APIRouter
+from fastapi import FastAPI, UploadFile, File, APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
@@ -79,3 +79,6 @@ async def parse_resume_api(file: UploadFile = File(...)):
             status_code=500,
             content={"error": f"An unexpected error occurred: {str(e)}"}
         )
+
+
+
