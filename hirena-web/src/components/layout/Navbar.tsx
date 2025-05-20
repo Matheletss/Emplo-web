@@ -59,6 +59,12 @@ const Navbar = () => {
             <Link to="/for-candidates" className="text-foreground/80 hover:text-foreground transition-colors">
               For Candidates
             </Link>
+            <Link to="/for-recruiters" className="text-foreground/80 hover:text-foreground transition-colors">
+              Talent Hub
+            </Link>
+            <Link to="/job-postings" className="text-foreground/80 hover:text-foreground transition-colors">
+              Job Postings
+            </Link>
           </div>
           
           <div className="flex gap-4">
@@ -131,6 +137,20 @@ const Navbar = () => {
               onClick={toggleMenu}
             >
               For Candidates
+            </Link>
+            <Link 
+              to="/for-recruiters" 
+              className="py-2 text-foreground/80 hover:text-foreground transition-colors"
+              onClick={toggleMenu}
+            >
+              Talent Hub
+            </Link>
+            <Link 
+              to="/job-postings" 
+              className="py-2 text-foreground/80 hover:text-foreground transition-colors"
+              onClick={toggleMenu}
+            >
+              Job Postings
             </Link>
             <div className="flex flex-col gap-2 pt-2">
               {user ? (

@@ -6,23 +6,27 @@ from .extract_text import extract_text_from_pdf
 nlp = spacy.load("en_core_web_sm")
 
 def extract_name(text):
-    raw_lines = text.split("\n")
+    # Clean and split lines
+    raw_lines = [line.strip() for line in text.split("\n") if line.strip()]
+
+    # Blacklisted keywords (commonly found in resumes)
     blacklist_keywords = [
         "python", "c++", "java", "tensorflow", "mongodb", "eclipse", "github",
         "linkedin", "email", "skills", "objective", "contact", "resume", "intern",
-        "opshift", "engineer", "javaScript"
+        "opshift", "engineer", "javascript", "developer", "student", "experience"
     ]
+    blacklist_keywords = [kw.lower() for kw in blacklist_keywords]
 
-    for line in raw_lines[:15]:
-        line = line.strip()
+    # Check first 10 non-empty lines
+    for line in raw_lines[:10]:
         if (
-            line.isupper() and
             2 <= len(line.split()) <= 4 and
             all(w.isalpha() for w in line.split()) and
             not any(kw in line.lower() for kw in blacklist_keywords)
         ):
             return line.title()
 
+    # Fallback to NER
     doc = nlp(text)
     for ent in doc.ents:
         if ent.label_ == "PERSON":
@@ -71,7 +75,7 @@ def parse_resume(text: str) -> dict:
 
     data["education"] = extract_section(
         lines,
-        ["EDUCATION"],
+        ["EDUCATION", "SCHOLASTIC ACHIEVEMENTS", "ACADEMIC ACHIEVEMENTS", "ACADEMIC QUALIFICATIONS", "EDUCATIONAL QUALIFICATIONS"],
         ["PROJECTS", "AWARDS", "PUBLICATIONS", "SKILLS", "EXPERIENCE", "CAREER OBJECTIVE", "LEADERSHIP", "VOLUNTEER"]
     )
 
@@ -83,7 +87,7 @@ def parse_resume(text: str) -> dict:
 
     data["projects"] = extract_section(
         lines,
-        ["PROJECTS", "PROJECTS/RESEARCH WORK", "RESEARCH WORK"],
+        ["PROJECTS", "PROJECTS/RESEARCH WORK", "RESEARCH WORK", "KEY PROJECTS"],
         ["AWARDS", "PUBLICATIONS", "SKILLS", "EDUCATION", "WORK EXPERIENCE", "LEADERSHIP", "VOLUNTEER", "MISC","LEADERSHIP", "VOLUNTEER", "LEADERSHIP & VOLUNTEER EXPERIENCE", "EXTRACURRICULAR", "MISC" ]
     )
 
@@ -101,7 +105,7 @@ def parse_resume(text: str) -> dict:
 
     data["miscellaneous"] = extract_section(
         lines,
-        ["LEADERSHIP", "VOLUNTEER", "LEADERSHIP & VOLUNTEER EXPERIENCE", "EXTRACURRICULAR", "MISC"],
+        ["LEADERSHIP", "VOLUNTEER", "LEADERSHIP & VOLUNTEER EXPERIENCE", "EXTRACURRICULAR", "MISC", "EXTRA-CURRICULAR ACTIVITIES"],
         ["REFERENCES", "SKILLS", "EDUCATION"]
     )
 

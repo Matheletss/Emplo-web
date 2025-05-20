@@ -3,7 +3,8 @@ import bcrypt
 import jwt
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from app.models import Profile
+from models.profile import Profile as Profile
+from models.employer_profile import EmployerProfile as EmployerProfile
 from app.db import profiles_collection
 from api.authentication.models import ProfileWithToken, ProfileUpdate
 from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
@@ -205,7 +206,6 @@ async def update_profile_from_resume(
             "projects": updated_user.get("projects"),
             "miscellaneous": updated_user.get("miscellaneous"),
         }
-
         return user_data
 
     finally:

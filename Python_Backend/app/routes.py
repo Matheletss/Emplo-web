@@ -1,12 +1,14 @@
 # routes.py
 from fastapi import APIRouter
 from app.db import profiles_collection
-from app.models import Profile, PyObjectId
+from models.profile import Profile as Profile
+from models.profile import PyObjectId as PyObjectId
+from models.employer_profile import EmployerProfile as EmployerProfile
+from models.employer_profile import PyObjectId as EmployerPyObjectId
 from fastapi import HTTPException
 from typing import List
 from datetime import datetime
 import logging
-import bcrypt
 
 logger = logging.getLogger(__name__)
 
@@ -36,3 +38,13 @@ async def update_profile(profile_id: str, profile_update: Profile):
         return updated_profile
     
     raise HTTPException(status_code=404, detail="Profile not found")
+
+@router.get("/profiles", response_model=List[Profile])
+async def get_all_profiles():
+    profiles_cursor = profiles_collection.find()
+    profiles = []
+    for profile in profiles_cursor:
+        profile['seekerId'] = str(profile['_id'])  # Use MongoDB's ObjectId as seekerId
+        del profile['_id']  # Optionally remove _id if not needed
+        profiles.append(profile)
+    return profiles

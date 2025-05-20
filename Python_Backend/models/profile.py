@@ -23,7 +23,8 @@ class PyObjectId(ObjectId):
         json_schema = handler.resolve_ref_schema(json_schema)
         json_schema.update(examples=['example'])
         return json_schema
-    
+
+#Model for user profiles
 class Profile(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str  # This will match the auth user ID
@@ -37,16 +38,8 @@ class Profile(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        validate_by_name = True
-        json_encoders = {ObjectId: str}
-        # schema_extra = {
-        #     "example": {
-        #         "user_id": "auth0|123456",
-        #         "name": "John Doe",
-        #         "email": "john@example.com",
-        #         "skills": "Python, FastAPI, MongoDB",
-        #         "created_at": "2023-01-01T00:00:00",
-        #         "updated_at": "2023-01-01T00:00:00"
-        #     }
-        # }
+    model_config = {
+        "validate_by_name": True,  # Equivalent to validate_by_name
+        "json_encoders": {ObjectId: str}
+    }
+       

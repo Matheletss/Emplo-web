@@ -1,6 +1,5 @@
 # db.py
 from pymongo import MongoClient
-from pymongo.collection import Collection
 from typing import Optional
 
 # MongoDB connection string

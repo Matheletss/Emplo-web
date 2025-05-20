@@ -6,7 +6,6 @@ from api.resume_parser_api.parser.parse_resume import parse_resume
 import os
 import logging
 
-
 router = APIRouter()
 # Set up logging
 logging.basicConfig(level=logging.INFO)
