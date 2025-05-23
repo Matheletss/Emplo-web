@@ -152,6 +152,7 @@ const Navbar = () => {
             >
               Job Postings
             </Link>
+
             <div className="flex flex-col gap-2 pt-2">
               {user ? (
                 <>

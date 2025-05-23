@@ -5,6 +5,34 @@ from .extract_text import extract_text_from_pdf
 
 nlp = spacy.load("en_core_web_sm")
 
+# def extract_name(text):
+#     raw_lines = text.split("\n")
+#     blacklist_keywords = [
+#         "python", "c++", "java", "tensorflow", "mongodb", "eclipse", "github",
+#         "linkedin", "email", "skills", "objective", "contact", "resume", "intern",
+#         "opshift", "engineer"
+#     ]
+    
+#     print("\n".join(raw_lines[:15]))
+
+
+#     for line in raw_lines[:15]:
+#         line = line.strip()
+#         if (
+#             line.isupper() and
+#             2 <= len(line.split()) <= 4 and
+#             all(w.isalpha() for w in line.split()) and
+#             not any(kw in line.lower() for kw in blacklist_keywords)
+#         ):
+#             return line.title()
+
+#     doc = nlp(text)
+#     for ent in doc.ents:
+#         if ent.label_ == "PERSON":
+#             return ent.text
+
+#     return "Unknown"
+
 def extract_name(text):
     # Clean and split lines
     raw_lines = [line.strip() for line in text.split("\n") if line.strip()]
@@ -15,8 +43,8 @@ def extract_name(text):
         "linkedin", "email", "skills", "objective", "contact", "resume", "intern",
         "opshift", "engineer", "javascript", "developer", "student", "experience"
     ]
-    blacklist_keywords = [kw.lower() for kw in blacklist_keywords]
-
+    # blacklist_keywords = [kw.lower() for kw in blacklist_keywords]
+    
     # Check first 10 non-empty lines
     for line in raw_lines[:10]:
         if (
@@ -52,6 +80,7 @@ def extract_section(lines, start_headers, stop_headers):
                 result.append(line.strip())
 
     return result
+
 
 def parse_resume(text: str) -> dict:
     data = {}

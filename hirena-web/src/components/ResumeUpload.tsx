@@ -5,10 +5,6 @@ import { Upload } from "lucide-react";
 import { parseResume } from "@/utils/resumeParser";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/types/supabase";
-
-type ProfileData = Database["public"]["Tables"]["profiles"]["Insert"];
 
 const ResumeUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -40,65 +36,56 @@ const ResumeUpload = () => {
     }
 
     try {
-      setIsUploading(true);
-      const parsedData = await parseResume(file);
-      
-      if (parsedData) {
-        // First, check if profile exists
-        const { data: existingProfile, error: fetchError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+       setIsUploading(true);
 
-        if (fetchError && fetchError.code !== "PGRST116") { // PGRST116 means no rows returned
-          console.error("Error fetching profile:", fetchError);
-          throw new Error("Failed to check existing profile");
-        }
+    const parsedData = await parseResume(file);
 
-        // Convert arrays to strings and ensure all fields exist
-        const profileData: ProfileData = {
-          id: user.id,
-          name: parsedData.name || existingProfile?.name || "",
-          email: parsedData.email || existingProfile?.email || user.email || "",
-          skills: Array.isArray(parsedData.skills) ? parsedData.skills.join(", ") : existingProfile?.skills || "",
-          experience: Array.isArray(parsedData.experience) ? parsedData.experience.join("\n\n") : existingProfile?.experience || "",
-          projects: Array.isArray(parsedData.projects) ? parsedData.projects.join("\n\n") : existingProfile?.projects || "",
-          miscellaneous: Array.isArray(parsedData.miscellaneous) ? parsedData.miscellaneous.join("\n\n") : existingProfile?.miscellaneous || "",
-          education: Array.isArray(parsedData.education) ? parsedData.education.join("\n\n") : existingProfile?.education || "",
-          user_type: "candidate",
-          updated_at: new Date().toISOString(),
-        };
+    if (!parsedData) {
+      toast({
+        title: "Error parsing resume",
+        description: "Could not extract information from your resume. Please try again or update your profile manually.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-        // If profile doesn't exist, include created_at
-        if (!existingProfile) {
-          profileData.created_at = new Date().toISOString();
-        }
 
-        // Update or insert the profile
-        const { error: upsertError } = await supabase
-          .from("profiles")
-          .upsert(profileData, {
-            onConflict: "id",
-            ignoreDuplicates: false
-          });
+    console.log("Parsed resume data:", user.email);
+    // Prepare profile data similar to before
+    const profileData = {
+      // id: user.id,
+      name: parsedData.name || "",
+      email: parsedData.email || user.email || "",
+      skills: Array.isArray(parsedData.skills) ? parsedData.skills.join(", ") : "",
+      experience: Array.isArray(parsedData.experience) ? parsedData.experience.join("\n\n") : "",
+      projects: Array.isArray(parsedData.projects) ? parsedData.projects.join("\n\n") : "",
+      miscellaneous: Array.isArray(parsedData.miscellaneous) ? parsedData.miscellaneous.join("\n\n") : "",
+      education: Array.isArray(parsedData.education) ? parsedData.education.join("\n\n") : "",
+      user_type: "candidate",
+      updated_at: new Date().toISOString(),
+    };
 
-        if (upsertError) {
-          console.error("Error updating profile:", upsertError);
-          throw new Error(upsertError.message || "Failed to update profile");
-        }
+    console.log("Parsed profile data:", profileData);
 
-        toast({
-          title: "Success",
-          description: "Your resume has been processed and your profile has been updated.",
-        });
-      } else {
-        toast({
-          title: "Error parsing resume",
-          description: "Could not extract information from your resume. Please try again or update your profile manually.",
-          variant: "destructive",
-        });
-      }
+    const token = localStorage.getItem("token");
+    // Send to FastAPI backend - upsert profile
+    const response = await fetch("http://127.0.0.1:8000/api/profile", {
+      method: "PUT", // Using PUT for upsert semantics
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,  // If using JWT or any token
+      },
+      body: JSON.stringify(profileData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to update profile");
+    }
+
+    toast({
+      title: "Success",
+      description: "Your resume has been processed and your profile has been updated.",
+    });
     } catch (error: any) {
       console.error("Error processing resume:", error);
       toast({

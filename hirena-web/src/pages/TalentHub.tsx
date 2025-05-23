@@ -41,9 +41,11 @@ const TalentHubPage = () => {
       seeker.name?.toLowerCase().includes(searchLower) ||
       seeker.role?.toLowerCase().includes(searchLower) ||
       seeker.location?.toLowerCase().includes(searchLower) ||
-      seeker.skills?.some(skill => skill.toLowerCase().includes(searchLower))
+      (Array.isArray(seeker.skills) &&
+    seeker.skills.some(skill => skill.toLowerCase().includes(searchLower)))
     );
   });
+  
   return (
     <Layout>
     <div className="min-h-screen px-6 py-10 bg-gradient-to-b from-[#f7f3ed] to-[#fdfaf5]">
@@ -65,7 +67,7 @@ const TalentHubPage = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-[#5f4b3b]">{seeker.name}</h2>
                   <p className="text-sm text-gray-700">{seeker.role} - {seeker.location}</p>
-                  <p className="text-sm text-gray-600">Skills: {seeker.skills?.join(', ')}</p>
+                  <p className="text-sm text-gray-600">Skills: {seeker.skills}</p>
                 </div>
                 <Button
                   variant="ghost"

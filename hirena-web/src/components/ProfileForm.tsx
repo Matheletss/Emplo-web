@@ -50,73 +50,83 @@ const ProfileForm = () => {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
+  const fetchProfile = async () => {
+     const token = localStorage.getItem("token");
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        return;
-      }
-
-      if (data) {
-        form.reset({
-          name: data.name || "",
-          email: data.email || "",
-          skills: data.skills || "",
-          experience: data.experience || "",
-          projects: data.projects || "",
-          miscellaneous: data.miscellaneous || "",
-          education: data.education || "",
-        });
-      }
-    };
-
-    fetchProfile();
-  }, [user, form]);
-
-  const onSubmit = async (data: ProfileFormValues) => {
-    if (!user) return;
+  if (!token) {
+    console.error("No token found in localStorage");
+    return;
+  }
 
     try {
-      setIsLoading(true);
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({
-          id: user.id,
-          name: data.name,
-          email: data.email,
-          skills: data.skills,
-          experience: data.experience,
-          projects: data.projects,
-          miscellaneous: data.miscellaneous,
-          education: data.education,
-          user_type: "candidate",
-          updated_at: new Date().toISOString(),
-        });
+      const res = await fetch("http://127.0.0.1:8000/me", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
 
-      if (error) throw error;
+    if (!res.ok) throw new Error("Failed to fetch profile");
 
-      toast({
-        title: "Success",
-        description: "Your profile has been updated.",
-      });
+    const data = await res.json();
+    console.log("Fetched profile data:", data);
+    form.reset({
+      name: data.name || "",
+      email: data.email || "",
+      skills: data.skills || "",
+      experience: data.experience || "",
+      projects: data.projects || "",
+      miscellaneous: data.miscellaneous || "",
+      education: data.education || "",
+    });
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while updating your profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching profile:", error);
     }
   };
+
+  fetchProfile();
+}, [user, form]);
+
+const onSubmit = async (data: ProfileFormValues) => {
+  if (!user) return;
+
+  try {
+    setIsLoading(true);
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+    console.log("Form data:", data.email);
+    const res = await fetch("http://127.0.0.1:8000/api/profile", {
+      method: "PUT",
+      headers: { 
+        "Content-Type": "application/json",
+        "authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...data,
+        email: data.email,
+        user_type: "candidate",
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update profile");
+
+    toast({
+      title: "Success",
+      description: "Your profile has been updated.",
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    toast({
+      title: "Error",
+      description: "An error occurred while updating your profile. Please try again.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <Form {...form}>

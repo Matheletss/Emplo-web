@@ -39,6 +39,15 @@ async def update_profile(profile_id: str, profile_update: Profile):
     
     raise HTTPException(status_code=404, detail="Profile not found")
 
+# @router.post("/api/profile")
+# async def upsert_profile(profile: Profile):
+#     profiles_collection.update_one(
+#         {"id": PyObjectId(profile.id)},
+#         {"$set": profile.model_dump()},
+#         upsert=True
+#     )
+#     return {"message": "Profile upserted"}
+
 @router.get("/profiles", response_model=List[Profile])
 async def get_all_profiles():
     profiles_cursor = profiles_collection.find()
