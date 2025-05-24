@@ -27,10 +27,10 @@ class PyObjectId(ObjectId):
 #Model for user profiles
 class Profile(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    # user_id: str  # This will match the auth user ID
-    name: Optional[str] = None
+    name: str
     email: EmailStr
     password: Optional[str] = None
+    op_email: Optional[EmailStr] = None
     skills: Optional[Union[str, List[str]]] = None
     experience: Optional[Union[str, List[str]]] = None
     projects: Optional[Union[str, List[str]]] = None

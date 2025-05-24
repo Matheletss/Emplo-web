@@ -43,7 +43,7 @@ export const ResumeUpload = () => {
       if (parsedData) {
         // Pre-fill the form
         setValue("name", parsedData.name);
-        setValue("email", parsedData.email);
+        setValue("email", parsedData.op_email);
         setValue("skills", parsedData.skills.join(", "));
         setValue("experience", JSON.stringify(parsedData.experience, null, 2));
         setValue("projects", JSON.stringify(parsedData.projects, null, 2));

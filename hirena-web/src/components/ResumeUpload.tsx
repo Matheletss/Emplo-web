@@ -39,7 +39,6 @@ const ResumeUpload = () => {
        setIsUploading(true);
 
     const parsedData = await parseResume(file);
-
     if (!parsedData) {
       toast({
         title: "Error parsing resume",
@@ -48,14 +47,11 @@ const ResumeUpload = () => {
       });
       return;
     }
-
-
-    console.log("Parsed resume data:", user.email);
     // Prepare profile data similar to before
     const profileData = {
       // id: user.id,
       name: parsedData.name || "",
-      email: parsedData.email || user.email || "",
+      op_email: parsedData.op_email || "",
       skills: Array.isArray(parsedData.skills) ? parsedData.skills.join(", ") : "",
       experience: Array.isArray(parsedData.experience) ? parsedData.experience.join("\n\n") : "",
       projects: Array.isArray(parsedData.projects) ? parsedData.projects.join("\n\n") : "",
@@ -65,18 +61,22 @@ const ResumeUpload = () => {
       updated_at: new Date().toISOString(),
     };
 
-    console.log("Parsed profile data:", profileData);
+    console.log("Profile Data of the resume:", profileData);
 
     const token = localStorage.getItem("token");
     // Send to FastAPI backend - upsert profile
     const response = await fetch("http://127.0.0.1:8000/api/profile", {
-      method: "PUT", // Using PUT for upsert semantics
+      method: "PUT", 
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,  // If using JWT or any token
+        "Authorization": `Bearer ${token}`,  
       },
-      body: JSON.stringify(profileData),
+      body: JSON.stringify({
+        ...profileData,
+        email: user.email
+      }),
     });
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.detail || "Failed to update profile");
@@ -86,6 +86,7 @@ const ResumeUpload = () => {
       title: "Success",
       description: "Your resume has been processed and your profile has been updated.",
     });
+    window.location.reload();
     } catch (error: any) {
       console.error("Error processing resume:", error);
       toast({

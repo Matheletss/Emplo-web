@@ -13,6 +13,7 @@ class ProfileWithToken(BaseModel):
     
 class ProfileUpdate(BaseModel):
     name: Optional[str]=None
+    op_email: Optional[EmailStr]=None
     skills: Optional[List[str]]=None
     experience: Optional[List[str]]=None
     projects: Optional[List[str]]=None

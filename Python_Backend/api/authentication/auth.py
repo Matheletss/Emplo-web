@@ -11,6 +11,7 @@ from api.authentication.models import ProfileWithToken, ProfileUpdate
 from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
 from api.resume_parser_api.parser.parse_resume import parse_resume
 from api.authentication.models import LoginRequest
+from config import JWT_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 import os
 import logging
 from typing import Optional
@@ -20,10 +21,6 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 logger = logging.getLogger(__name__)
-
-JWT_SECRET = "MayukhsSecretKey"
-JWT_ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -45,27 +42,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         if user_email is None:
             raise credentials_exception
 
-        print(f"Authenticated user email: {user_email}")
-        # Optionally get more info about user or just return the id
+        print(f"Authenticated user email: {user_email}") #getting the email from the token
         user = {"email": user_email}  
     except PyJWTError:
         raise credentials_exception
     return user
-
-# @router.post("/api/profile")
-# async def upsert_profile(profile: Profile, user: dict = Depends(get_current_user)):
-#     user_email = user["email"]
-#     print(f"Authenticated user email: {user_email}")
-#     if profile.email != user_email:
-#         raise HTTPException(status_code=403, detail="You can only update your own profile")
-    
-#     # Ensure the update is scoped to this user only
-#     profiles_collection.update_one(
-#         {"email": user_email},  # match the user's own profile
-#         {"$set": profile.model_dump()},
-#         upsert=True
-#     )
-#     return {"message": "Profile upserted"}
 
 # Create a new profile
 @router.post("/profile", response_model=ProfileWithToken)
@@ -131,6 +112,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
         "user_id": user.get("user_id"),
         "name": user.get("name"),
         "email": user.get("email"),
+        "op_email": user.get("op_email"),
         "skills": user.get("skills"),
         "experience": user.get("experience"),
         "projects": user.get("projects"),
@@ -170,74 +152,3 @@ async def upsert_profile(profile: Profile, user=Depends(get_current_user)):
     else:
         raise HTTPException(status_code=500, detail="Failed to update profile")
     
-# # Update profile from resume
-# @router.put("/profile/resume", response_model=Profile)
-# async def update_profile_from_resume(
-#     file: UploadFile = File(...),
-#     token: str = Depends(oauth2_scheme),
-# ):
-#     if file.content_type != "application/pdf":
-#         raise HTTPException(status_code=400, detail="Only PDF files are supported")
-
-#     # Decode JWT and get email (reuse your logic)
-#     try:
-#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#         email = payload.get("sub")
-#         if email is None:
-#             raise HTTPException(status_code=401, detail="Could not validate credentials")
-#     except jwt.PyJWTError:
-#         raise HTTPException(status_code=401, detail="Could not validate credentials")
-
-#     user = profiles_collection.find_one({"email": email})
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Save file temporarily
-#     os.makedirs("/tmp", exist_ok=True)
-#     pdf_path = f"/tmp/{file.filename}"
-#     try:
-#         content = await file.read()
-#         with open(pdf_path, "wb") as f:
-#             f.write(content)
-#         logging.info(f"Saved file at {pdf_path}")
-
-#         # Extract text from PDF (your existing function)
-#         text = extract_text_from_pdf(pdf_path)
-#         if not text:
-#             raise HTTPException(status_code=400, detail="Could not extract text from PDF")
-
-#         # Parse resume text (your existing function)
-#         parsed_data = parse_resume(text)
-#         if not parsed_data:
-#             raise HTTPException(status_code=400, detail="Could not parse resume content")
-
-#         # Validate parsed data using Pydantic ProfileUpdate
-#         update_data = ProfileUpdate(**parsed_data).model_dump(exclude_unset=True)
-#         if not update_data:
-#             raise HTTPException(status_code=400, detail="No valid fields found in resume")
-
-#         # Update MongoDB profile
-#         profiles_collection.update_one({"email": email}, {"$set": update_data})
-
-#         # Fetch updated user
-#         updated_user = profiles_collection.find_one({"email": email})
-
-#         # Prepare response dict (similar to your /profile PUT)
-#         user_data = {
-#             "id": str(updated_user["_id"]),
-#             "user_id": updated_user.get("user_id"),
-#             "name": updated_user.get("name"),
-#             "email": updated_user.get("email"),
-#             "skills": updated_user.get("skills"),
-#             "experience": updated_user.get("experience"),
-#             "projects": updated_user.get("projects"),
-#             "miscellaneous": updated_user.get("miscellaneous"),
-#         }
-#         return user_data
-
-#     finally:
-#         try:
-#             os.remove(pdf_path)
-#             logging.info(f"Deleted temp file {pdf_path}")
-#         except Exception as e:
-#             logging.error(f"Failed to delete temp file: {e}")

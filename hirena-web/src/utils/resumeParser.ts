@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 export interface ParsedResume {
   name: string;
-  email: string;
+  op_email: string;
   skills: string[];
   education: any[];
   experience: any[];
@@ -13,7 +13,7 @@ export interface ParsedResume {
 }
 
 // Make sure to use the correct host that matches the FastAPI server
-const API_URL = import.meta.env.VITE_RESUME_PARSER_API_URL || 'http://127.0.0.1:8000/parse-resume';
+const API_URL = 'http://127.0.0.1:8000/parse-resume';
 
 export const parseResume = async (file: File): Promise<ParsedResume | null> => {
   try {
@@ -33,7 +33,6 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
 
     console.log("Sending request to resume parser API...");
     console.log("API URL:", API_URL);
-
     try {
       const response = await fetch(API_URL, {
         method: "POST",
@@ -63,7 +62,7 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
       }
 
       // Ensure all required fields are present
-      const requiredFields = ['name', 'email', 'skills', 'experience', 'projects'];
+      const requiredFields = ['name', 'op_email', 'skills', 'experience', 'projects'];
       const missingFields = requiredFields.filter(field => !(field in data));
       if (missingFields.length > 0) {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);

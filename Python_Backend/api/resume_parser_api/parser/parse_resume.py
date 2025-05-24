@@ -94,7 +94,7 @@ def parse_resume(text: str) -> dict:
     # Email fix
     if email:
         email = email.replace("Q", "@").replace("@@", "@")
-    data["email"] = email
+    data["op_email"] = email
 
     skills_keywords = [
         "Python", "C++", "Java", "TensorFlow", "Scikit-Learn", "React",

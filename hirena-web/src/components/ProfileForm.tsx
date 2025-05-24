@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 const profileSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email"),
+  op_email: z.string().email("Please enter a valid email"),
   skills: z.string(),
   experience: z.string(),
   projects: z.string(),
@@ -39,7 +39,7 @@ const ProfileForm = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: "",
-      email: "",
+      op_email: "",
       skills: "",
       experience: "",
       projects: "",
@@ -66,14 +66,13 @@ const ProfileForm = () => {
         "Content-Type": "application/json"
       }
     });
-
     if (!res.ok) throw new Error("Failed to fetch profile");
 
     const data = await res.json();
-    console.log("Fetched profile data:", data);
     form.reset({
       name: data.name || "",
       email: data.email || "",
+      op_email: data.op_email || "",
       skills: data.skills || "",
       experience: data.experience || "",
       projects: data.projects || "",
@@ -90,12 +89,9 @@ const ProfileForm = () => {
 
 const onSubmit = async (data: ProfileFormValues) => {
   if (!user) return;
-
   try {
     setIsLoading(true);
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("Form data:", data.email);
     const res = await fetch("http://127.0.0.1:8000/api/profile", {
       method: "PUT",
       headers: { 
@@ -105,8 +101,9 @@ const onSubmit = async (data: ProfileFormValues) => {
       body: JSON.stringify({
         ...data,
         email: data.email,
+        // op_email: data.op_email,
         user_type: "candidate",
-        updated_at: new Date().toISOString(),
+        // updated_at: new Date().toISOString(),
       }),
     });
 
@@ -147,7 +144,7 @@ const onSubmit = async (data: ProfileFormValues) => {
 
         <FormField
           control={form.control}
-          name="email"
+          name="op_email"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>

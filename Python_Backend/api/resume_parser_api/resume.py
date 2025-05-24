@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
 from api.resume_parser_api.parser.parse_resume import parse_resume
+from api.authentication.auth import get_current_user
+from api.authentication.models import ProfileWithToken
 import os
 import logging
 

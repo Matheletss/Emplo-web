@@ -25,7 +25,7 @@ const TalentHubPage = () => {
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/profiles')  // 🔁 Use your actual backend URL here
-      .then(res => setJobSeekers(res.data))
+      .then(res => {setJobSeekers(res.data)})
       .catch(err => console.error("Failed to fetch profiles", err));
   }, []);
 
@@ -45,7 +45,7 @@ const TalentHubPage = () => {
     seeker.skills.some(skill => skill.toLowerCase().includes(searchLower)))
     );
   });
-  
+
   return (
     <Layout>
     <div className="min-h-screen px-6 py-10 bg-gradient-to-b from-[#f7f3ed] to-[#fdfaf5]">
