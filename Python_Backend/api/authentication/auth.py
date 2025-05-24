@@ -42,7 +42,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         if user_email is None:
             raise credentials_exception
 
-        print(f"Authenticated user email: {user_email}") #getting the email from the token
         user = {"email": user_email}  
     except PyJWTError:
         raise credentials_exception
