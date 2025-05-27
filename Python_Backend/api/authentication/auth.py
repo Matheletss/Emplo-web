@@ -8,13 +8,10 @@ from models.profile import Profile as Profile
 from models.employer_profile import EmployerProfile as EmployerProfile
 from app.db import profiles_collection
 from api.authentication.models import ProfileWithToken, ProfileUpdate
-from api.resume_parser_api.parser.extract_text import extract_text_from_pdf
-from api.resume_parser_api.parser.parse_resume import parse_resume
 from api.authentication.models import LoginRequest
 from config import JWT_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-import os
 import logging
-from typing import Optional
+from bson import ObjectId
 
 router = APIRouter()
 
@@ -29,7 +26,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded_jwt
 
-
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -39,13 +35,22 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user_email: str = payload.get("sub")
+        user_id: str = payload.get("id")
         if user_email is None:
             raise credentials_exception
 
-        user = {"email": user_email}  
+        user = {"email": user_email, "id": user_id}
     except PyJWTError:
         raise credentials_exception
     return user
+
+# Get a user profile by ID
+@router.get("/profile/{user_id}", response_model=Profile)
+async def get_user_by_id(user_id: str) -> Profile | None:
+    user_data = await profiles_collection.find_one({"_id": ObjectId(user_id)})
+    if user_data:
+        return Profile(**user_data)
+    return None
 
 # Create a new profile
 @router.post("/profile", response_model=ProfileWithToken)
@@ -53,18 +58,18 @@ async def create_profile(profile: Profile):
     if profile.password is None:
         raise HTTPException(status_code=400, detail="Password cannot be None")
 
-    existing_profile = profiles_collection.find_one({"email": profile.email})
+    existing_profile = await profiles_collection.find_one({"email": profile.email})
     if existing_profile:
         raise HTTPException(status_code=400, detail="A profile with this email already exists.")
     
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(profile.password.encode('utf-8'), salt).decode('utf-8')
-    
+
     profile_dict = profile.model_dump(by_alias=True)
     profile_dict["password"] = hashed_password
-    
-    result = profiles_collection.insert_one(profile_dict)
-    
+
+    result = await profiles_collection.insert_one(profile_dict)
+
     # Create JWT token right after signup
     access_token = create_access_token(data={"sub": profile.email})
 
@@ -78,7 +83,7 @@ async def create_profile(profile: Profile):
 # Login endpoint
 @router.post("/login", response_model=ProfileWithToken)
 async def login(request: LoginRequest):
-    user = profiles_collection.find_one({"email": request.email})
+    user = await profiles_collection.find_one({"email": request.email})
 
     if not user:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
@@ -87,7 +92,9 @@ async def login(request: LoginRequest):
     if not bcrypt.checkpw(request.password.encode('utf-8'), user['password'].encode('utf-8')):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
-    access_token = create_access_token(data={"sub": user['email']})
+    access_token = create_access_token(
+        data={"sub": user['email'],
+        "id": str(user['_id'])})
 
     return ProfileWithToken(id=str(user['_id']), user=user['name'], email=user['email'], access_token=access_token)
 
@@ -102,7 +109,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
 
-    user = profiles_collection.find_one({"email": email})
+    user = await profiles_collection.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     # Convert ObjectId to str and filter fields
@@ -131,7 +138,6 @@ async def upsert_profile(profile: Profile, user=Depends(get_current_user)):
 
     now_str = datetime.utcnow().isoformat()
     profile_dict = profile.model_dump(by_alias=True)
-
     if not existing_profile:
         profile_dict["created_at"] = now_str
     profile_dict["updated_at"] = now_str
@@ -140,7 +146,7 @@ async def upsert_profile(profile: Profile, user=Depends(get_current_user)):
     profile_dict.pop("_id", None)
 
     # Upsert profile (replace or insert)
-    result = profiles_collection.update_one(
+    result = await profiles_collection.update_one(
         {"email": profile.email},
         {"$set": profile_dict},
         upsert=True

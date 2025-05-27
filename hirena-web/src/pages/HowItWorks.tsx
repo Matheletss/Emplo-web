@@ -121,7 +121,7 @@ const HowItWorks = () => {
             
             <div className="mt-16 text-center">
               <Button asChild size="lg" className="font-medium">
-                <Link to="/signup">Get Started <ChevronRight size={16} className="ml-1" /></Link>
+                <Link to="/auth">Get Started <ChevronRight size={16} className="ml-1" /></Link>
               </Button>
             </div>
           </div>

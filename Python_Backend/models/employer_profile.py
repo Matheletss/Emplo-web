@@ -1,6 +1,6 @@
 from pydantic_core import CoreSchema
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Literal
 from pydantic import BaseModel, GetJsonSchemaHandler, EmailStr
 from bson import ObjectId
 from pydantic import Field
@@ -25,18 +25,24 @@ class PyObjectId(ObjectId):
         return json_schema
 
 #Model for Employer profiles
+HiringSizeType = Literal["1-10", "10-50", "50-100", "100-500", "500+"]
+CompanyType = Literal[
+    "AI company",
+    "Technology company",
+    "Staffing agency/talent acquisition",
+    "Consultancy/managed service provider",
+    "Capital allocator",
+    "Multinational corporation",
+    "Others",
+]
+
 class EmployerProfile(BaseModel):
     id:  PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     work_email: EmailStr
-    hiring_size: Optional[str] = None
-    worker_types: Optional[List[str]] = None
-    company_type: Optional[str] = None
-    name: Optional[str] = None
-    additional_info: Optional[str] = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    
-    model_config = {
-        "validate_by_name": True,  # Equivalent to validate_by_name
-        "json_encoders": {ObjectId: str}
-    }
+    hiring_size: HiringSizeType
+    worker_types: List[str]
+    company_type: CompanyType
+    name: str
+    additional_info: Optional[str] = ""
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

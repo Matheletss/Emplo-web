@@ -12,6 +12,7 @@ import ForEmployers from "./pages/ForEmployers";
 import ForCandidates from "./pages/ForCandidates";
 import TalentHub from "./pages/TalentHub";
 import JobPostingsPage from "./pages/JobPosting";
+import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/for-recruiters" element={<TalentHub />} />
             <Route path="/job-postings" element={<JobPostingsPage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/apply" element={<Apply />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />

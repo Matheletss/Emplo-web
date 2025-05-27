@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,8 +7,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { CheckboxGroup } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+
+type FormDataType = {
+  work_email: string;
+  hiring_size: HiringSizeType;
+  worker_types: string[];
+  company_type: CompanyType;
+  name: string;
+  additional_info: string;
+};
 
 type HiringSizeType = "1-10" | "10-50" | "50-100" | "100-500" | "500+";
 type CompanyType = 
@@ -20,8 +29,10 @@ type CompanyType =
   | "Others";
 
 const EmployerQuestionnaire = () => {
+
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<FormDataType>({
     work_email: "",
     hiring_size: "" as HiringSizeType,
     worker_types: [] as string[],
@@ -29,6 +40,7 @@ const EmployerQuestionnaire = () => {
     name: "",
     additional_info: "",
   });
+
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -55,37 +67,46 @@ const EmployerQuestionnaire = () => {
           updated_at: new Date().toISOString(),
         });
 
-        const { error } = await supabase
-          .from('employer_profiles')
-          .upsert({
-            id: user.id,
-            ...formData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
+        const response = await fetch("http://localhost:8000/employer-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.accessToken}`, // optional, if you have JWT auth
+        },
+        body: JSON.stringify({
+          id: user.id,
+          ...formData,
+        }),
+      });
 
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
-
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to save profile");
+      } else {
         setSubmitted(true);
         toast({
           title: "Success!",
           description: "Your profile has been saved successfully.",
         });
-      } catch (error) {
-        console.error('Error saving employer profile:', error);
-        toast({
-          title: "Error",
-          description: error instanceof Error ? error.message : "There was a problem saving your profile. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      console.error('Error saving employer profile:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "There was a problem saving your profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
+}
+
+const handleBack = () => {
+  if (currentStep > 1) {
+    setCurrentStep((prev) => prev - 1);
+  }
+};
 
   const isStepValid = () => {
     switch (currentStep) {
@@ -252,6 +273,16 @@ const EmployerQuestionnaire = () => {
 
         <div className="mt-8 flex justify-end">
           <Button
+            onClick={handleBack}
+            disabled={currentStep === 1 || isLoading}
+            variant="outline"
+            className="text-black border-black hover:bg-gray-100"
+          >
+            Back
+          </Button>
+          <div className="mx-2" />
+
+          <Button
             onClick={handleNext}
             disabled={!isStepValid() || isLoading}
             className="bg-black text-white hover:bg-black/90"
@@ -262,6 +293,6 @@ const EmployerQuestionnaire = () => {
       </div>
     </div>
   );
-};
+}
 
-export default EmployerQuestionnaire; 
+export default EmployerQuestionnaire;

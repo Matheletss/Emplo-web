@@ -39,12 +39,11 @@ async def update_profile(profile_id: str, profile_update: Profile):
     
     raise HTTPException(status_code=404, detail="Profile not found")
 
+# Get all profiles
 @router.get("/profiles", response_model=List[Profile])
 async def get_all_profiles():
-    profiles_cursor = profiles_collection.find()
-    profiles = []
+    profiles_cursor = await profiles_collection.find().to_list(length=None)
     for profile in profiles_cursor:
         profile['seekerId'] = str(profile['_id'])  # Use MongoDB's ObjectId as seekerId
         del profile['_id']  # Optionally remove _id if not needed
-        profiles.append(profile)
-    return profiles
+    return profiles_cursor

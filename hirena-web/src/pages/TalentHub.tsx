@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from "@/components/layout/Layout";
+import { Badge } from '@/components/ui/badge';
+import { Search, MapPin, Award, GraduationCap, Briefcase, ExternalLink } from 'lucide-react';
 
 interface JobSeeker {
   _id: string;
