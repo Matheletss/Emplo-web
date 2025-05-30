@@ -1,28 +1,36 @@
-Quadeye is a leading algorithmic trading firm with its presence across all global exchanges. Our engineers translate their understanding of financial markets into automated trading strategies across multiple asset classes & instruments using advanced mathematical techniques. We are talented entrepreneurial individuals with a knack of numbers and genius coders who love to design resilient and robust trading systems.
+CodeNova Technologies is a fast-growing tech startup based in Bangalore, building smart, scalable, and user-centric solutions across the fintech and edtech sectors. Our team thrives on clean code, intuitive design, and a deep culture of continuous learning.
 
-Quadeye is a place of deep curiosity, high expectations, no-hierarchy and constant collaboration with some of the smartest engineers who are empowered to innovate with the help of best resources, mentors and technology.
+At CodeNova, we believe that great software is built by curious minds, collaborative problem-solvers, and people who care deeply about product quality. With a flat hierarchy and a learning-first environment, we empower our developers to work across the stack and contribute to impactful projects from day one.
 
-We are looking to hire Software Developer-Python having 0- 2 years of work experience to work with our product team for Quadeye's High-Frequency Trading environment.
+We are looking to hire a Full Stack Web Developer with 0–2 years of experience to join our dynamic product team. This role offers an opportunity to work on end-to-end web development using modern technologies and contribute meaningfully to scalable, production-ready systems.
 
-Find out more about what we do, our history, and how you could be a part of our future at https://www.quadeye.com/about-us/.
+Find out more about who we are and what we build at https://www.codenova.in
 
 Key Responsibilities
+Build and maintain user-facing features using modern frontend frameworks such as React or Vue.
 
-Understanding the problems and issues related to the smooth operations of our processes and software.
-Coming up with good engineering solutions for problems.
-Implementing the code for creating and modifying the software.
-Testing the code written thoroughly.
-Deploying the code in production.
-Overviewing the code in production and resolving the arising issues.
+Design and implement backend APIs and services using Node.js, Python, or similar technologies.
 
-Experience and Qualification 
+Work with databases like PostgreSQL and MongoDB to structure, query, and optimize data.
 
-Engineering degree in Computer Science (preferred) or any other discipline
-Ability to work in a fast-paced environment managing multiple high-priority projects.
-Working with Python and bash on a regular basis
-Advantageous if the candidate has familiarity with pandas/NumPy.
-Strong Knowledge of Shell and Python scripting
-Working knowledge of Linux
-Excellent problem-solving abilities
-Good written and oral communication skills
-Willingness to learn and work on new technologies.
+Collaborate with designers, developers, and product managers to ship high-quality software.
+
+Write testable, maintainable code and assist in debugging and deployment.
+
+Learn from senior developers and actively contribute to team discussions and code reviews.
+
+Experience and Qualifications
+0–2 years of professional experience in web development.
+
+Strong foundation in HTML, CSS, and JavaScript.
+
+Familiarity with frontend frameworks (React, Vue, Angular, etc.).
+
+Exposure to at least one backend language (Node.js, Python, etc.).
+
+Basic understanding of REST APIs, version control systems like Git, and modern development workflows.
+
+Willingness to learn, adapt quickly, and contribute in a fast-paced environment.
+
+B.E./B.Tech in Computer Science or related discipline (preferred).
+

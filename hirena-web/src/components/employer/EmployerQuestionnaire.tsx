@@ -1,5 +1,4 @@
 import { useState, useEffect} from "react";
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { CheckboxGroup } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Link } from 'react-router-dom';
 
 type FormDataType = {
   work_email: string;
@@ -30,16 +30,33 @@ type CompanyType =
 
 const EmployerQuestionnaire = () => {
 
-  const [currentStep, setCurrentStep] = useState(1);
-
-  const [formData, setFormData] = useState<FormDataType>({
-    work_email: "",
-    hiring_size: "" as HiringSizeType,
-    worker_types: [] as string[],
-    company_type: "" as CompanyType,
-    name: "",
-    additional_info: "",
+  const [currentStep, setCurrentStep] = useState(() => {
+    const savedStep = localStorage.getItem("employer_step");
+    console.log("Saved Step:", savedStep);
+    return savedStep ? parseInt(savedStep, 10) : 1;
   });
+
+  const [formData, setFormData] = useState<FormDataType>(() => {
+    const savedForm = localStorage.getItem("employer_form");
+    return savedForm
+      ? JSON.parse(savedForm)
+      : {
+          work_email: "",
+          hiring_size: "",
+          worker_types: [],
+          company_type: "",
+          name: "",
+          additional_info: "",
+        };
+  });
+
+   useEffect(() => {
+    localStorage.setItem("employer_step", currentStep.toString());
+  }, [currentStep]);
+
+  useEffect(() => {
+    localStorage.setItem("employer_form", JSON.stringify(formData));
+  }, [formData]);
 
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +68,17 @@ const EmployerQuestionnaire = () => {
   };
 
   const handleNext = async () => {
+    const token= localStorage.getItem("token");
+    console.log("Token:", token);
+    console.log("Current Step:", user);
     if (currentStep < 6) {
       setCurrentStep((prev) => prev + 1);
-    } else {
+      return;
+    } 
       setIsLoading(true);
+      console.log("Saving form data:", user);
       try {
-        if (!user?.id) {
+        if (!user.id) {
           throw new Error('User not authenticated');
         }
 
@@ -67,11 +89,12 @@ const EmployerQuestionnaire = () => {
           updated_at: new Date().toISOString(),
         });
 
+        console.log(user.id);
         const response = await fetch("http://localhost:8000/employer-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.accessToken}`, // optional, if you have JWT auth
+          Authorization: `Bearer ${token}`, // optional, if you have JWT auth
         },
         body: JSON.stringify({
           id: user.id,
@@ -80,9 +103,12 @@ const EmployerQuestionnaire = () => {
       });
 
       const data = await response.json();
+      console.log('Response data:', data);
       if (!response.ok) {
         throw new Error(data.detail || "Failed to save profile");
       } else {
+        localStorage.removeItem("employer_step");
+        localStorage.removeItem("employer_form");
         setSubmitted(true);
         toast({
           title: "Success!",
@@ -99,7 +125,7 @@ const EmployerQuestionnaire = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  
 }
 
 const handleBack = () => {
@@ -126,18 +152,23 @@ const handleBack = () => {
   };
 
   if (submitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-hirena-beige to-hirena-cream p-4">
-        <div className="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4 text-hirena-dark-brown">Thank You!</h2>
-          <p className="text-foreground/70 mb-6">
-            We appreciate your interest. A member of our team will be in touch with you shortly.
-          </p>
-        </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-hirena-beige to-hirena-cream p-4">
+      <div className="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4 text-hirena-dark-brown">Thank You!</h2>
+        <p className="text-foreground/70 mb-6">
+          We appreciate your interest. A member of our team will be in touch with you shortly.
+        </p>
+        <Link
+          to="/"
+          className="inline-block bg-hirena-dark-brown text-white px-6 py-2 rounded-lg hover:bg-hirena-brown transition duration-300"
+        >
+          Go to Home
+        </Link>
       </div>
-    );
-  }
-
+    </div>
+  );
+}
   const renderQuestion = () => {
     switch (currentStep) {
       case 1:

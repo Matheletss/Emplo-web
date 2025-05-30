@@ -7,7 +7,6 @@ SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
 BASE_URL = "https://api.sarvam.ai"
 
 import base64
-import requests
 import os
 
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")

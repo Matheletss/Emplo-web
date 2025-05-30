@@ -1,17 +1,21 @@
 import os
 import json
 import logging
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi import status
+from fastapi import APIRouter, HTTPException, Depends, UploadFile
+from fastapi import status, File, Form
 from api.ai_interviewer_backend.app.core.gpt_client import generate_greeting, generate_followup, generate_thank_you
 from models.schema import UserResponseRequest, AskRequest, InterviewState
-from api.ai_interviewer_backend.app.core.config import MAX_INTERVIEW_QUESTIONS
+from config import MAX_INTERVIEW_QUESTIONS
 from app.db import transcripts_collection
 from datetime import datetime
 from bson import ObjectId as PyObjectId
+from bson import Binary
 from api.authentication.auth import get_current_user 
 from models.profile import Profile
-
+import base64
+from api.ai_interviewer_backend.app.api.stt import save_webm_file
+from api.ai_interviewer_backend.app.api.stt import transcribe_audio_file
+from api.ai_interviewer_backend.app.api.tts import text_to_speech
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -62,60 +66,149 @@ def start_interview():
         logger.error(f"Error starting interview: {e}")
         raise HTTPException(status_code=500, detail=f"Could not start interview: {e}")
 
+# @router.post("/ask")
+# async def ask_question(request: AskRequest,  user: Profile = Depends(get_current_user)):
+#     try:
+#         # Load context
+#         with open("api/ai_interviewer_backend/app/core/data/resume.json", "r") as f:
+#             resume = json.load(f)
+
+#         with open("api/ai_interviewer_backend/app/core/data/job_description.txt", "r") as f:
+#             jd = f.read()
+
+#         # Check end of interview
+#         if request.state.question_count >= MAX_INTERVIEW_QUESTIONS:
+#             thank_you_message = generate_thank_you(resume.get("name", "Candidate"))
+#             return {
+#                 "question": thank_you_message,
+#                 "state": {
+#                     "question_count": request.state.question_count,
+#                     "conversation_history": request.state.conversation_history,
+#                     "is_interview_complete": True
+#                 }
+#             }
+
+#         # Generate next question
+#         followup = generate_followup(
+#             resume=json.dumps(resume, indent=2),
+#             job_description=jd,
+#             user_response=request.user_response,
+#             conversation_history=request.state.conversation_history
+#         )
+
+#         # Update conversation state
+#         new_conversation_history = request.state.conversation_history + [
+#             {"role": "user", "content": request.user_response},
+#             {"role": "assistant", "content": followup}
+#         ]
+
+#         print(user["id"])
+#         # ✅ Save to MongoDB
+#         await transcripts_collection.insert_one({
+#             "interview_id": str(PyObjectId()),
+#             "user_id": str(user["id"]),
+#             "timestamp": datetime.utcnow().isoformat(),
+#             "question_count": request.state.question_count + 1,
+#             "conversation": new_conversation_history,
+#         })
+
+#         return {
+#             "question": followup,
+#             "state": {
+#                 "question_count": request.state.question_count + 1,
+#                 "conversation_history": new_conversation_history,
+#                 "is_interview_complete": False
+#             }
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
 @router.post("/ask")
-async def ask_question(request: AskRequest, user: Profile = Depends(get_current_user)):
+async def ask_question(
+    request_str: str = Form(...),
+    file: UploadFile = File(...),
+    user: Profile = Depends(get_current_user)
+):
     try:
-        # Load context
+        # Parse JSON string to AskRequest model
+        request = AskRequest.parse_raw(request_str)
+        state = request.state
+
+        # Step 1: Save incoming audio file to temp for STT
+        webm_path, webm_bytes = await save_webm_file(file)
+
+        # Step 2: Use your STT function to get transcript
+        stt_result = await transcribe_audio_file(webm_path)
+        user_response = stt_result["transcript"]
+
+
+        # Load resume and job description as before
         with open("api/ai_interviewer_backend/app/core/data/resume.json", "r") as f:
             resume = json.load(f)
-
         with open("api/ai_interviewer_backend/app/core/data/job_description.txt", "r") as f:
             jd = f.read()
 
-        # Check end of interview
-        if request.state.question_count >= MAX_INTERVIEW_QUESTIONS:
+        # Check if interview complete
+        if state.question_count >= MAX_INTERVIEW_QUESTIONS:
             thank_you_message = generate_thank_you(resume.get("name", "Candidate"))
             return {
                 "question": thank_you_message,
                 "state": {
-                    "question_count": request.state.question_count,
-                    "conversation_history": request.state.conversation_history,
+                    "question_count": state.question_count,
+                    "conversation_history": state.conversation_history,
                     "is_interview_complete": True
                 }
             }
 
-        # Generate next question
+        # Generate next question text
         followup = generate_followup(
             resume=json.dumps(resume, indent=2),
             job_description=jd,
-            user_response=request.user_response,
-            conversation_history=request.state.conversation_history
+            user_response=user_response,
+            conversation_history=state.conversation_history
         )
 
-        # Update conversation state
-        new_conversation_history = request.state.conversation_history + [
-            {"role": "user", "content": request.user_response},
+        # Generate TTS audio bytes for followup question
+        tts_audio_bytes = text_to_speech(followup)  # your TTS function returning raw wav bytes
+
+        # Optionally encode TTS audio as base64 string to send in JSON
+        tts_audio_b64 = base64.b64encode(tts_audio_bytes).decode('utf-8')
+
+        # Update conversation history
+        new_conversation_history = state.conversation_history + [
+            {"role": "user", "content": user_response},
             {"role": "assistant", "content": followup}
         ]
 
-        print(user["id"])
-        # ✅ Save to MongoDB
+        # Save user audio, transcript and followup question/audio to MongoDB
         await transcripts_collection.insert_one({
             "interview_id": str(PyObjectId()),
             "user_id": str(user["id"]),
             "timestamp": datetime.utcnow().isoformat(),
-            "question_count": request.state.question_count + 1,
-            "conversation": new_conversation_history
+            "question_count": state.question_count + 1,
+            "conversation": new_conversation_history,
+            "user_audio": {
+                "filename": file.filename,
+                "content_type": file.content_type,
+                "data": Binary(webm_bytes)  # you may want to save again or save from temp file
+            },
+            "user_transcript": user_response,
+            "assistant_text": followup,
+            "assistant_audio": Binary(tts_audio_bytes)
         })
 
+        # Return text question + TTS audio base64 string
         return {
             "question": followup,
+            "tts_audio_base64": tts_audio_b64,
             "state": {
-                "question_count": request.state.question_count + 1,
+                "question_count": state.question_count + 1,
                 "conversation_history": new_conversation_history,
                 "is_interview_complete": False
             }
         }
 
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))

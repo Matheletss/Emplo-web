@@ -1,7 +1,7 @@
 import os
 import openai
 from openai import OpenAI
-from api.ai_interviewer_backend.app.core.config import OPENAI_API_KEY
+from config import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -9,7 +9,7 @@ def generate_greeting(name: str) -> str:
     return f"Hi {name}, welcome! Let's begin. Could you tell me a bit about yourself?"
 
 def generate_followup(resume: str, job_description: str, user_response: str, conversation_history: list = []) -> str:
-    with open("api/ai_interviewer_backend/app/core/system_prompt.txt", "r") as file:
+    with open("api/ai_interviewer_backend/app/core/system_prompt.txt", "r", encoding="utf-8") as file:
         system_prompt = file.read()
     messages = [
         {

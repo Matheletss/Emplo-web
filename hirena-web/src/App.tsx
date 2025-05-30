@@ -16,6 +16,7 @@ import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Interview from "./pages/Interview";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/job-postings" element={<JobPostingsPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/apply" element={<Apply />} />
+            <Route path="/interview" element={<Interview />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
