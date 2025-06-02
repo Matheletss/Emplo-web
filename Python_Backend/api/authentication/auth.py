@@ -7,8 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from models.profile import Profile as Profile
 from models.employer_profile import EmployerProfile as EmployerProfile
 from app.db import profiles_collection
-from api.authentication.models import ProfileWithToken, ProfileUpdate
-from api.authentication.models import LoginRequest
+from api.authentication.models import ProfileWithToken, ProfileUpdate, LoginRequest
 from config import JWT_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 import logging
 from bson import ObjectId

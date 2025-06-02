@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
-from typing import List
+from typing import List, Optional
 from models.profile import Profile
-from typing import Optional
 
 class ProfileWithToken(BaseModel):
     id: str

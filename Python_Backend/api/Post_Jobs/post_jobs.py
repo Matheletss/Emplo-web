@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from app.db import jobs_collection
 from models.jobs import JobCreate, Job
 from bson import ObjectId
-from fastapi import APIRouter
 
 router = APIRouter()
 

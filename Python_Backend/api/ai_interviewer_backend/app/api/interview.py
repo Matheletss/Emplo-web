@@ -13,8 +13,7 @@ from bson import Binary
 from api.authentication.auth import get_current_user 
 from models.profile import Profile
 import base64
-from api.ai_interviewer_backend.app.api.stt import save_webm_file
-from api.ai_interviewer_backend.app.api.stt import transcribe_audio_file
+from api.ai_interviewer_backend.app.api.stt import save_webm_file, transcribe_audio_file
 from api.ai_interviewer_backend.app.api.tts import text_to_speech
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -136,6 +135,7 @@ async def ask_question(
         request = AskRequest.parse_raw(request_str)
         state = request.state
 
+        
         # Step 1: Save incoming audio file to temp for STT
         webm_path, webm_bytes = await save_webm_file(file)
 
@@ -161,7 +161,7 @@ async def ask_question(
                     "is_interview_complete": True
                 }
             }
-
+            
         # Generate next question text
         followup = generate_followup(
             resume=json.dumps(resume, indent=2),
