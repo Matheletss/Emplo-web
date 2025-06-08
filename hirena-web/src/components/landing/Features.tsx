@@ -8,7 +8,7 @@ const Features = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Simplify Your Hiring Process</h2>
           <p className="text-lg text-foreground/70">
-            Hirena provides a comprehensive solution to streamline every step of your recruitment journey.
+            Emplo AI provides a comprehensive solution to streamline every step of your recruitment journey.
           </p>
         </div>
 

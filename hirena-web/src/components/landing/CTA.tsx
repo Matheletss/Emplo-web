@@ -9,7 +9,7 @@ const CTA = () => {
           Ready to Transform Your Hiring Process?
         </h2>
         <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-          Join Hirena today and experience the future of recruitment. Our AI-powered platform helps you find the right talent, faster and smarter.
+          Join Emplo AI today and experience the future of recruitment. Our AI-powered platform helps you find the right talent, faster and smarter.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild size="lg" variant="secondary" className="bg-white text-hirena-brown hover:bg-white/90">

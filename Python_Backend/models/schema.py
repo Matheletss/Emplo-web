@@ -2,6 +2,7 @@ from pydantic import BaseModel, GetJsonSchemaHandler
 from typing import List, Dict, Optional
 from bson import ObjectId
 from pydantic_core import CoreSchema
+from pydantic import Field
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -23,6 +24,7 @@ class PyObjectId(ObjectId):
         return json_schema
 
 class InterviewState(BaseModel):
+    interview_id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     question_count: int = 0
     conversation_history: List[Dict[str, str]] = []
     is_interview_complete: bool = False

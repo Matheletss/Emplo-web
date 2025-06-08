@@ -10,7 +10,7 @@ const HowItWorks = () => {
       <div className="bg-gradient-to-b from-hirena-beige to-hirena-cream py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-hirena-dark-brown">How Hirena Works</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-hirena-dark-brown">How Emplo AI Works</h1>
             <p className="text-lg text-foreground/80">
               Our AI-powered platform streamlines the entire recruitment process, from job posting to candidate selection.
             </p>
@@ -35,7 +35,7 @@ const HowItWorks = () => {
                     </p>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-hirena-light-brown/20 p-4">
                       <p className="text-sm italic text-foreground/80">
-                        "Hirena quickly parsed my resume and created my profile in seconds. I didn't need to manually enter any information." — Alex S., Software Developer
+                        "Emplo AI quickly parsed my resume and created my profile in seconds. I didn't need to manually enter any information." — Alex S., Software Developer
                       </p>
                     </div>
                   </div>
@@ -111,7 +111,7 @@ const HowItWorks = () => {
                     </p>
                     <div className="bg-white/80 backdrop-blur-sm rounded-lg border border-hirena-light-brown/20 p-4">
                       <p className="text-sm italic text-foreground/80">
-                        "Hirena provided us with all the information we needed to confidently select the right candidates for in-person interviews." — Chris L., CTO
+                        "Emplo AI provided us with all the information we needed to confidently select the right candidates for in-person interviews." — Chris L., CTO
                       </p>
                     </div>
                   </div>

@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-hirena-dark-brown">Hirena</h3>
+            <h3 className="text-xl font-semibold text-hirena-dark-brown">Emplo AI</h3>
             <p className="text-sm text-foreground/80">
               The wise way to hire. AI-powered recruitment to streamline your hiring process.
             </p>
@@ -76,13 +76,13 @@ const Footer = () => {
         
         <div className="mt-12 pt-6 border-t border-hirena-light-brown/20 flex flex-col md:flex-row gap-4 justify-between items-center">
           <p className="text-sm text-foreground/60">
-            &copy; {currentYear} Hirena. All rights reserved.
+            &copy; {currentYear} Emplo AI. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-foreground/60 hover:text-foreground transition-colors">
               Twitter
             </a>
-            <a href="#" className="text-foreground/60 hover:text-foreground transition-colors">
+            <a href="https://www.linkedin.com/company/emplo-ai/posts/?feedView=all" className="text-foreground/60 hover:text-foreground transition-colors">
               LinkedIn
             </a>
           </div>

@@ -24,7 +24,7 @@ const ForEmployers = () => {
           
           <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-hirena-light-brown/20">
             <div className="p-8 md:p-10">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Why Choose Hirena?</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-center">Why Choose Emplo AI?</h2>
               
               <ul className="space-y-4 mb-8 max-w-xl mx-auto">
                 <li className="flex gap-3">
@@ -76,7 +76,7 @@ const ForEmployers = () => {
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-foreground/70">
-              Everything you need to know about using Hirena as an employer.
+              Everything you need to know about using Emplo AI as an employer.
             </p>
           </div>
           
@@ -112,7 +112,7 @@ const ForEmployers = () => {
             <div>
               <h3 className="text-xl font-semibold mb-2">Is there a free trial available?</h3>
               <p className="text-foreground/70">
-                Yes, we offer a 7-day free trial so you can experience the full capabilities of Hirena.
+                Yes, we offer a 7-day free trial so you can experience the full capabilities of Emplo AI.
               </p>
             </div>
             

@@ -11,7 +11,7 @@ const ForEmployers = () => {
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-hirena-dark-brown">For Employers</h2>
             <p className="text-lg mb-6 text-foreground/80">
-              Hiring doesn't have to be complicated. Hirena streamlines your recruitment process so you can focus on finding the right talent for your team.
+              Hiring doesn't have to be complicated. Emplo AI streamlines your recruitment process so you can focus on finding the right talent for your team.
             </p>
             
             <ul className="space-y-4 mb-8">

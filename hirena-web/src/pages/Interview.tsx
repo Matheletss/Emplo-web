@@ -148,14 +148,15 @@ const Index = () => {
     await startRecording(async (audioBlob) => {
        setLoading(true);
     try {
-      const sttData = await apiService.speechToText(audioBlob);
-      const userText = typeof sttData.transcript.transcript === 'string' ? sttData.transcript.transcript : JSON.stringify(sttData.transcript.transcript);
+      const sttData = await apiService.speechToText(audioBlob); //clear
+      // const userText = typeof sttData.transcript.transcript === 'string' ? sttData.transcript.transcript : JSON.stringify(sttData.transcript.transcript);
+      const userText = sttData.transcript; // Handle both cases
       console.log('STT Result:', sttData);
       console.log('User Text:', userText);
       setTranscript(userText);
 
       // Pass audioBlob, not userText!
-      const askData = await apiService.askQuestion(audioBlob, interviewState);
+      const askData = await apiService.askQuestion(userText, interviewState);
       const nextQ = askData.question;
       setInterviewState(askData.state);
       setQuestion(nextQ);

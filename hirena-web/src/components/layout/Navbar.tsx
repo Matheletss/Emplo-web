@@ -41,10 +41,10 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2">
           <img 
             src="/lovable-uploads/Epsilon_png.png" 
-            alt="Hirena Logo" 
+            alt="Emplo AI Logo" 
             className="h-16 w-16"
           />
-          <span className="text-2xl font-bold text-hirena-dark-brown -ml-2">Emplo</span>
+          <span className="text-2xl font-bold text-hirena-dark-brown -ml-2">Emplo AI</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -64,6 +64,9 @@ const Navbar = () => {
             </Link>
             <Link to="/job-postings" className="text-foreground/80 hover:text-foreground transition-colors">
               Job Postings
+            </Link>
+            <Link to="/EmployerDashboard" className="text-foreground/80 hover:text-foreground transition-colors">
+              Employer Dashboard
             </Link>
           </div>
           

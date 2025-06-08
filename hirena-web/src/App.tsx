@@ -14,9 +14,13 @@ import TalentHub from "./pages/TalentHub";
 import JobPostingsPage from "./pages/JobPosting";
 import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
+import EmployerDashboard from "./pages/EmployerDashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Interview from "./pages/Interview";
+import EmployerMessages_One from "./pages/Applicants_one";
+import EmployerMessages_Two from "./pages/Applicants_two";
+import EmployerMessages_Three from "./pages/Applicants_three";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +38,12 @@ const App = () => (
             <Route path="/for-candidates" element={<ForCandidates />} />
             <Route path="/for-recruiters" element={<TalentHub />} />
             <Route path="/job-postings" element={<JobPostingsPage />} />
+            
+              <Route path="/EmployerDashboard" element={<EmployerDashboard />} />
+        <Route path="/EmployerDashboard/applicants_one" element={<EmployerMessages_One />} />
+        <Route path="/EmployerDashboard/applicants_two" element={<EmployerMessages_Two />} />
+        <Route path="/EmployerDashboard/applicants_three" element={<EmployerMessages_Three />} />
+
             <Route path="/auth" element={<Auth />} />
             <Route path="/apply" element={<Apply />} />
             <Route path="/interview" element={<Interview />} />

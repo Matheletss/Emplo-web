@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { parseResume, ParsedResume } from "@/utils/resumeParser";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileFormData {
@@ -64,26 +63,6 @@ export const ResumeUpload = () => {
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({
-          id: user.id,
-          name: data.name,
-          email: data.email,
-          skills: data.skills,
-          experience: data.experience,
-          projects: data.projects,
-          miscellaneous: data.miscellaneous,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (error) throw error;
-      toast.success("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error saving profile:", error);
-      toast.error("Failed to save profile");
-    }
   };
 
   return (
