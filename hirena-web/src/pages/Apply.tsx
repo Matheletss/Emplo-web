@@ -1,67 +1,126 @@
-import  { useState } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import Layout from "@/components/layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function JobDescriptionPage() {
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const { toast } = useToast();
+const API_URL = "http://localhost:8000";
 
-  const handleSubmit = (): void => {
-    toast({
-      title: "Resume Submitted",
-      description: "You have submitted your existing resume."
-    });
-    setSubmitted(true);
-  };
-  
-  return (
-    <div className="bg-[#f9f5ef] text-[#4b3e2d] min-h-screen p-8 font-sans">
-  <div className="max-w-4xl mx-auto">
-    <h1 className="text-4xl font-bold mb-4">Full Stack Web Developer (0–2 years)</h1>
-    <p className="mb-6">
-      CodeNova Technologies is a fast-growing tech startup based in Bangalore, building smart, scalable, and user-centric solutions across the fintech and edtech sectors. Our team thrives on clean code, intuitive design, and a deep culture of continuous learning.
-    </p>
-    <p className="mb-6">
-      At CodeNova, we believe that great software is built by curious minds, collaborative problem-solvers, and people who care deeply about product quality. With a flat hierarchy and a learning-first environment, we empower our developers to work across the stack and contribute to impactful projects from day one.
-    </p>
-    <p className="mb-6">
-      This is an exciting opportunity to be part of a dynamic product team and work on end-to-end development of scalable, production-ready systems using modern technologies. If you're passionate about building real-world solutions and eager to grow in a collaborative, startup environment, we’d love to hear from you.
-    </p>
-
-    <h2 className="text-2xl font-semibold mt-8 mb-4">Key Responsibilities</h2>
-    <ul className="list-disc list-inside space-y-2 mb-6">
-      <li>Build and maintain user-facing features using modern frontend frameworks such as React or Vue.</li>
-      <li>Design and implement backend APIs and services using Node.js, Python, or similar technologies.</li>
-      <li>Work with databases like PostgreSQL and MongoDB to structure, query, and optimize data.</li>
-      <li>Collaborate with designers, developers, and product managers to ship high-quality software.</li>
-      <li>Write testable, maintainable code and assist in debugging and deployment.</li>
-      <li>Learn from senior developers and actively contribute to team discussions and code reviews.</li>
-    </ul>
-
-    <h2 className="text-2xl font-semibold mt-8 mb-4">Experience and Qualifications</h2>
-    <ul className="list-disc list-inside space-y-2 mb-6">
-      <li>0–2 years of professional experience in web development.</li>
-      <li>Strong foundation in HTML, CSS, and JavaScript.</li>
-      <li>Familiarity with frontend frameworks (React, Vue, Angular, etc.).</li>
-      <li>Exposure to at least one backend language (Node.js, Python, etc.).</li>
-      <li>Basic understanding of REST APIs, version control systems like Git, and modern development workflows.</li>
-      <li>Willingness to learn, adapt quickly, and contribute in a fast-paced environment.</li>
-      <li>B.E./B.Tech in Computer Science or related discipline (preferred).</li>
-    </ul>
-
-    <div className="flex justify-center mt-10">
-      <Button
-        onClick={handleSubmit}
-        disabled={submitted}
-        className={`${
-          submitted ? "bg-gray-400 cursor-not-allowed" : "bg-[#5b4a36] hover:bg-[#3e3224]"
-        } text-white px-6 py-2 rounded-xl text-lg shadow-md`}
-      >
-        Submit Resume
-      </Button>
-    </div>
-  </div>
-</div>
-
-  );
+export interface Job {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
 }
+
+const JobDescriptionPage = () => {
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [job, setJob] = useState<Job | null>(null);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const token = localStorage.getItem("token");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleApply = async () => {
+    if (!job || !token) return;
+    console.log("Applying for job:", id, "by user:", user.email);
+    try {
+      const res = await fetch(`${API_URL}/apply/${id}/${user.email}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Application Failed",
+          description: data.detail || "Something went wrong",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Application Successful",
+        description: data.message,
+      });
+
+      setSubmitted(true);
+      navigate(-1); // back to previous page
+    } catch (err) {
+      console.error("Apply error:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while applying.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      console.log("Fetching job with ID:", id);
+      try {
+        const response = await fetch(`${API_URL}/jobs/${id}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+        const job_data = await response.json();
+        setJob(job_data);
+      } catch (error) {
+        console.error("Error fetching job:", error);
+      }
+    };
+
+    fetchJob();
+  }, [id, token]);
+
+  if (!job) return <p>Loading job details...</p>;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#f3efe7] to-[#fcf7f0] p-8 text-[#5b4636]">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6 text-center">Job Description</h1>
+
+        <div className="bg-white shadow-md p-6 rounded-2xl border border-gray-200">
+          <h2 className="text-2xl font-semibold mb-2">{job.title}</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            {job.company} — {job.location}
+          </p>
+
+          <div className="text-gray-800 leading-relaxed space-y-4">
+            <p>{job.description}</p>
+          </div>
+
+          <div className="flex gap-4 mt-6">
+            <button
+              onClick={handleApply}
+              className="px-4 py-2 bg-[#7a614c] text-white rounded-xl hover:bg-[#604c3d]"
+              disabled={submitted}
+            >
+              {submitted ? "Applied" : "Submit Resume"}
+            </button>
+
+            <a
+              href="/job-postings"
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-xl hover:bg-gray-400"
+            >
+              Back to Jobs
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default JobDescriptionPage;

@@ -9,6 +9,9 @@ from api.ai_interviewer_backend.app.api.tts import router as tts_router  # Impor
 from api.ai_interviewer_backend.app.api.stt import router as stt_router  # Import the FastAPI router from stt.py
 from api.Post_Jobs.post_jobs import router as post_jobs_router  # Import the FastAPI router from post_jobs.py
 from api.Employer.employer import router as employer_router  # Import the FastAPI router from employer.py  
+from api.resume_parser_llm_api.parser import router as resume_parser_llm_router  # Import the FastAPI router from resume_parser_llm_api.parser
+from api.job_applicants.job_applicants import router as job_applicants_router  # Import the FastAPI router from job_applicants.py
+from api.resume_scorer_llm_api.scorer import router as resume_scorer_llm_router  # Import the FastAPI router from resume_scorer_llm_api.scorer
 app = FastAPI()
 
 # Add CORS middleware
@@ -26,10 +29,13 @@ app.include_router(tts_router, prefix="/audio")
 app.include_router(stt_router, prefix="/audio")
 
 # Include the API router
-app.include_router(resume_router)
+# app.include_router(resume_router)
 app.include_router(auth_router)
 app.include_router(post_jobs_router)
 app.include_router(employer_router)
+app.include_router(resume_parser_llm_router)
+app.include_router(job_applicants_router)
+app.include_router(resume_scorer_llm_router)
 
 # # Serve static files
 # app.mount("/static", StaticFiles(directory="static"), name="static")

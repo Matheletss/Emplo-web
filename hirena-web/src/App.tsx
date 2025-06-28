@@ -12,6 +12,7 @@ import ForEmployers from "./pages/ForEmployers";
 import ForCandidates from "./pages/ForCandidates";
 import TalentHub from "./pages/TalentHub";
 import JobPostingsPage from "./pages/JobPosting";
+import JobDescriptionPage from "./pages/Apply";
 import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -21,6 +22,7 @@ import Interview from "./pages/Interview";
 import EmployerMessages_One from "./pages/Applicants_one";
 import EmployerMessages_Two from "./pages/Applicants_two";
 import EmployerMessages_Three from "./pages/Applicants_three";
+import ApplicantsPage from "./pages/Applicants";
 
 const queryClient = new QueryClient();
 
@@ -38,11 +40,12 @@ const App = () => (
             <Route path="/for-candidates" element={<ForCandidates />} />
             <Route path="/for-recruiters" element={<TalentHub />} />
             <Route path="/job-postings" element={<JobPostingsPage />} />
-            
-              <Route path="/EmployerDashboard" element={<EmployerDashboard />} />
-        <Route path="/EmployerDashboard/applicants_one" element={<EmployerMessages_One />} />
-        <Route path="/EmployerDashboard/applicants_two" element={<EmployerMessages_Two />} />
-        <Route path="/EmployerDashboard/applicants_three" element={<EmployerMessages_Three />} />
+            <Route path="/apply/:id" element={<JobDescriptionPage />} />
+            <Route path="/EmployerDashboard" element={<EmployerDashboard />} />
+            <Route path="/EmployerDashboard/applicants/:id" element={<ApplicantsPage />} />
+            {/* <Route path="/EmployerDashboard/applicants_one" element={<EmployerMessages_One />} />
+            <Route path="/EmployerDashboard/applicants_two" element={<EmployerMessages_Two />} />
+            <Route path="/EmployerDashboard/applicants_three" element={<EmployerMessages_Three />} /> */}
 
             <Route path="/auth" element={<Auth />} />
             <Route path="/apply" element={<Apply />} />

@@ -38,7 +38,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         if user_email is None:
             raise credentials_exception
 
-        user = {"email": user_email, "id": user_id}
+        user = {"email": user_email, "_id": user_id}
     except PyJWTError:
         raise credentials_exception
     return user
@@ -79,6 +79,7 @@ async def create_profile(profile: Profile):
         access_token=access_token,
         token_type="bearer"
     )
+    
 # Login endpoint
 @router.post("/login", response_model=ProfileWithToken)
 async def login(request: LoginRequest):
@@ -122,6 +123,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
         "experience": user.get("experience"),
         "projects": user.get("projects"),
         "miscellaneous": user.get("miscellaneous"),
+        "education": user.get("education"),
         "created_at": user.get("created_at"),
         "updated_at": user.get("updated_at"),
     }

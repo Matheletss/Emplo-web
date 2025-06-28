@@ -14,6 +14,7 @@ interface ProfileFormData {
   experience: string;
   projects: string;
   miscellaneous: string;
+  education?: string;
 }
 
 export const ResumeUpload = () => {
@@ -47,6 +48,7 @@ export const ResumeUpload = () => {
         setValue("experience", JSON.stringify(parsedData.experience, null, 2));
         setValue("projects", JSON.stringify(parsedData.projects, null, 2));
         setValue("miscellaneous", JSON.stringify(parsedData.miscellaneous, null, 2));
+        setValue("education", JSON.stringify(parsedData.education, null, 2));
         toast.success("Resume parsed successfully!");
       }
     } catch (error) {
@@ -146,6 +148,16 @@ export const ResumeUpload = () => {
               className="min-h-[100px]"
             />
             {errors.miscellaneous && <p className="text-sm text-red-500">{errors.miscellaneous.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Education</label>
+            <Textarea
+              {...register("education", { maxLength: 5000 })}
+              placeholder="Your education"
+              className="min-h-[100px]"
+            />
+            {errors.education && <p className="text-sm text-red-500">{errors.education.message}</p>}
           </div>
 
           <Button type="submit" disabled={isLoading}>

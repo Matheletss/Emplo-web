@@ -30,6 +30,7 @@ const JobPostingsPage = () => {
     description: "",
   });
 
+  const token = localStorage.getItem("token");
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -39,7 +40,9 @@ const JobPostingsPage = () => {
       const response = await fetch(`${API_URL}/jobs`,
         {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "authorization": `Bearer ${token}`,
+            "Content-Type": "application/json" },
         }
       );
       const data = await response.json();
@@ -60,7 +63,10 @@ const JobPostingsPage = () => {
     try {
       const response = await fetch(`${API_URL}/jobs`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(newJob),
       });
 
@@ -147,7 +153,7 @@ const JobPostingsPage = () => {
 
               <div className="flex gap-4 mt-3">
                 <Link
-                  to="/apply"
+                  to={`/apply/${job.id}`}
                   className="px-3 py-1 bg-[#7a614c] text-white rounded-xl hover:bg-[#604c3d]"
                 >
                   Apply

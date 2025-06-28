@@ -35,6 +35,7 @@ class Profile(BaseModel):
     experience: Optional[Union[str, List[str]]] = None
     projects: Optional[Union[str, List[str]]] = None
     miscellaneous: Optional[Union[str, List[str]]] = None
+    education: Optional[Union[str, List[str]]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

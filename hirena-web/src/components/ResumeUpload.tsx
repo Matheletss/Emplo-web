@@ -47,16 +47,37 @@ const ResumeUpload = () => {
       });
       return;
     }
+
+    console.log("Parsed Resume Data:", parsedData);
     // Prepare profile data similar to before
     const profileData = {
       // id: user.id,
       name: parsedData.name || "",
       op_email: parsedData.op_email || "",
       skills: Array.isArray(parsedData.skills) ? parsedData.skills.join(", ") : "",
-      experience: Array.isArray(parsedData.experience) ? parsedData.experience.join("\n\n") : "",
-      projects: Array.isArray(parsedData.projects) ? parsedData.projects.join("\n\n") : "",
+      experience: Array.isArray(parsedData.experience) 
+    ? parsedData.experience.map(exp => 
+        `Title: ${exp.title || 'N/A'}\n` +
+        `Company: ${exp.company || 'N/A'}\n` +
+        `Location: ${exp.location || 'N/A'}\n` +
+        `Duration: ${exp.duration || 'N/A'}\n` +
+        `Highlights:\n${(exp.highlights || []).map((h: string) => `- ${h}`).join('\n')}`
+      ).join("\n\n") : "",
+      projects: Array.isArray(parsedData.projects)
+        ? parsedData.projects.map(project =>
+            `Name: ${project.name || 'N/A'}\n` +
+            `Role: ${project.role || 'N/A'}\n` +
+            `Duration: ${project.duration || 'N/A'}\n` +
+            `Highlights:\n${(project.highlights || []).map((h: string) => `- ${h}`).join('\n')}`
+          ).join("\n\n") : "",
       miscellaneous: Array.isArray(parsedData.miscellaneous) ? parsedData.miscellaneous.join("\n\n") : "",
-      education: Array.isArray(parsedData.education) ? parsedData.education.join("\n\n") : "",
+      education: Array.isArray(parsedData.education) 
+    ? parsedData.education.map(edu => 
+        `Degree: ${edu.degree || 'N/A'}\n` +
+        `University: ${edu.university || 'N/A'}\n` +
+        `Duration: ${edu.duration || 'N/A'}\n` +
+        `Location: ${edu.location || 'N/A'}`
+      ).join("\n\n") : "",
       user_type: "candidate",
       updated_at: new Date().toISOString(),
     };

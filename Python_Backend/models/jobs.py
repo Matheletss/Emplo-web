@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 from bson import ObjectId
 
@@ -13,6 +13,5 @@ class JobCreate(JobBase):
 
 class Job(JobBase):
     id: str
-
     class Config:
-        orm_mode = True
+        from_attributes = True

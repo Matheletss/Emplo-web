@@ -107,6 +107,7 @@ const onSubmit = async (data: ProfileFormValues) => {
       }),
     });
 
+
     if (!res.ok) throw new Error("Failed to update profile");
 
     toast({

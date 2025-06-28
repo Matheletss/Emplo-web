@@ -13,9 +13,10 @@ export interface ParsedResume {
 }
 
 // Make sure to use the correct host that matches the FastAPI server
-const API_URL = 'http://127.0.0.1:8000/parse-resume';
+const API_URL = 'http://127.0.0.1:8000/parser-resume';
 
 export const parseResume = async (file: File): Promise<ParsedResume | null> => {
+  const token = localStorage.getItem("token");
   try {
     console.log("Starting resume parsing process...");
     console.log("File details:", {
@@ -32,10 +33,12 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
     formData.append("file", file);
 
     console.log("Sending request to resume parser API...");
-    console.log("API URL:", API_URL);
     try {
       const response = await fetch(API_URL, {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -56,6 +59,26 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
 
       const data = await response.json();
       console.log("Successfully received parsed resume data:", data);
+
+      let parsedData = data;
+      if (parsedData && typeof parsedData.parsed_resume === "string") {
+        try {
+          parsedData = JSON.parse(parsedData.parsed_resume);
+        } catch (e) {
+          console.error("Failed to parse parsed_resume JSON string:", e);
+          throw new Error("Invalid parsed_resume JSON format from backend");
+        }
+      } else if (typeof data === "string") {
+        // fallback for old logic
+        try {
+          parsedData = JSON.parse(data);
+        } catch (e) {
+          console.error("Failed to parse JSON string:", e);
+          throw new Error("Invalid JSON format from backend");
+        }
+      }
+
+      console.log("Parsed resume data:", parsedData);
       
       if (!data || typeof data !== 'object') {
         throw new Error("Invalid response from resume parser");
@@ -63,7 +86,7 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
 
       // Ensure all required fields are present
       const requiredFields = ['name', 'op_email', 'skills', 'experience', 'projects'];
-      const missingFields = requiredFields.filter(field => !(field in data));
+      const missingFields = requiredFields.filter(field => !(field in parsedData));
       if (missingFields.length > 0) {
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
@@ -71,20 +94,20 @@ export const parseResume = async (file: File): Promise<ParsedResume | null> => {
       // Ensure arrays are actually arrays and convert if needed
       const arrayFields = ['skills', 'education', 'experience', 'projects', 'awards', 'publications', 'miscellaneous'];
       for (const field of arrayFields) {
-        if (field in data) {
-          if (!Array.isArray(data[field])) {
-            if (typeof data[field] === 'string') {
-              data[field] = [data[field]];
+        if (field in parsedData) {
+          if (!Array.isArray(parsedData[field])) {
+            if (typeof parsedData[field] === 'string') {
+              parsedData[field] = [parsedData[field]];
             } else {
-              data[field] = [];
+              parsedData[field] = [];
             }
           }
         } else {
-          data[field] = [];
+          parsedData[field] = [];
         }
       }
 
-      return data;
+      return parsedData;
     } catch (networkError: any) {
       console.error("Network error:", networkError);
       throw new Error(`Network error: ${networkError.message}`);
