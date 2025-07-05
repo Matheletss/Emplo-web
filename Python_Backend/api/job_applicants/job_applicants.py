@@ -34,6 +34,7 @@ async def get_applicants_for_job(job_id: str):
             "application_id": str(applicant["_id"]),
             "user_id": str(applicant["user_id"]),
             "user_email": str(applicant["user_email"]),
+            "job_id": str(applicant["job_id"]),
             "job_title": applicant["job_title"],
             "job_company": applicant["job_company"],
             "status": applicant.get("status", "unknown"),

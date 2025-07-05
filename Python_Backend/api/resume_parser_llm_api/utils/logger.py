@@ -65,15 +65,15 @@ async def save_training_example(prompt_input: str, parsed_resume, user=Depends(g
     # Save to MongoDB with update/replace logic
     try:
         result = await resume_collection.update_one(
-            {"user_id": user.get("id")},  # Find by user_id
-            {"$set": example.dict()},      # Set the new data
+            {"user_id": user.get("_id")},  # Find by user_id
+            {"$set": example.model_dump()},      # Set the new data
             upsert=True                    # Insert if not found
         )
 
         if result.matched_count > 0:
-            print(f"🔄 Existing resume updated for user {user.get('id')}")
+            print(f"🔄 Existing resume updated for user {user.get('_id')}")
         else:
-            print(f"🆕 New resume inserted for user {user.get('id')}")
+            print(f"🆕 New resume inserted for user {user.get('_id')}")
 
     except Exception as e:
         print("❌ Error inserting/updating in MongoDB:", e)

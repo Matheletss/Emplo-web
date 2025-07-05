@@ -78,7 +78,7 @@ const EmployerQuestionnaire = () => {
       setIsLoading(true);
       console.log("Saving form data:", user);
       try {
-        if (!user.id) {
+        if (!user._id) {
           throw new Error('User not authenticated');
         }
 
@@ -89,7 +89,7 @@ const EmployerQuestionnaire = () => {
           updated_at: new Date().toISOString(),
         });
 
-        console.log(user.id);
+        console.log(user._id);
         const response = await fetch("http://localhost:8000/employer-profile", {
         method: "POST",
         headers: {
