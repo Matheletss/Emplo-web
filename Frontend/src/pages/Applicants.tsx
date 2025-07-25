@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +34,7 @@ interface Applicant {
   job_company: string;
   status: string;
   user_name: string;
+  total_evaluation_score?: number | null; // added
 }
 
 interface CandidateData {
@@ -133,6 +134,17 @@ const ApplicantsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingEvaluation, setLoadingEvaluation] = useState(false);
 
+  // 🔍 Filter: top N candidates
+  const [filterCount, setFilterCount] = useState<number | 'all'>('all');
+
+  const displayedApplicants = useMemo(() => {
+    const sorted = [...applicants].sort(
+      (a, b) => (b.total_evaluation_score ?? -1) - (a.total_evaluation_score ?? -1)
+    );
+    if (filterCount === 'all') return sorted;
+    return sorted.slice(0, filterCount);
+  }, [applicants, filterCount]);
+
   const getScoreColor = (percentage: number) => {
     if (percentage >= 80) return "text-emerald-600";
     if (percentage >= 60) return "text-yellow-600";
@@ -182,7 +194,27 @@ const ApplicantsPage: React.FC = () => {
     try {
       const res = await fetch(`${API_URL}/applicants/${id}`);
       const data = await res.json();
-      setApplicants(data.applicants);
+      // After fetching applicants, also fetch their evaluation scores
+      const fetchScoresForApplicants = async (appList: Applicant[]) => {
+        const scored = await Promise.all(
+          appList.map(async (app) => {
+            try {
+              const resScore = await fetch(`${API_URL}/score/user/${app.user_id}/${app.job_id}`);
+              if (resScore.ok) {
+                const scoreData = await resScore.json();
+                const overall = scoreData?.score_data?.overallScore ?? null;
+                return { ...app, total_evaluation_score: overall } as Applicant;
+              }
+            } catch {
+              /* ignore */
+            }
+            return { ...app, total_evaluation_score: null } as Applicant;
+          })
+        );
+        setApplicants(scored);
+      };
+
+      await fetchScoresForApplicants(data.applicants);
       setJobTitle(data.job_title);
     } catch {
       toast({ title: "Error", description: "Failed to load applicants.", variant: "destructive" });
@@ -353,12 +385,44 @@ const ApplicantsPage: React.FC = () => {
         <Card className="border-none rounded-none h-full">
           <CardHeader className="bg-[#fcf7f2] border-b border-neutral-200">
             <CardTitle className="flex items-center gap-2 text-neutral-800">
-              <Users className="w-5 h-5" /> Applicants ({applicants.length})
+              <Users className="w-5 h-5" /> Applicants ({displayedApplicants.length})
             </CardTitle>
             <p className="text-sm text-neutral-600">{jobTitle}</p>
+            {/* Filter Controls */}
+            <div className="mt-2 flex items-center gap-2">
+              <select
+                className="border border-neutral-300 rounded text-xs px-2 py-1"
+                value={filterCount}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFilterCount(val === 'all' ? 'all' : Number(val));
+                }}
+              >
+                <option value="all">All</option>
+                <option value={10}>Top 10</option>
+                <option value={25}>Top 25</option>
+                <option value={50}>Top 50</option>
+                <option value={100}>Top 100</option>
+              </select>
+              <input
+                type="number"
+                min={1}
+                placeholder="Custom"
+                className="w-16 border border-neutral-300 rounded text-xs px-2 py-1"
+                value={typeof filterCount === 'number' ? filterCount : ''}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val) && val > 0) {
+                    setFilterCount(val);
+                  } else if (e.target.value === '') {
+                    setFilterCount('all');
+                  }
+                }}
+              />
+            </div>
           </CardHeader>
           <CardContent className="p-0">
-            {applicants.map((applicant) => (
+            {displayedApplicants.map((applicant) => (
               <div
                 key={applicant.application_id}
                 className={`p-4 cursor-pointer hover:bg-orange-50 transition ${
@@ -368,7 +432,22 @@ const ApplicantsPage: React.FC = () => {
                 }`}
                 onClick={() => fetchEvaluation(applicant)}
               >
-                <div className="text-sm font-medium text-neutral-700">{applicant.user_name}</div>
+                <div className="flex items-center gap-2">
+                    <div className="text-sm font-medium text-neutral-700">{applicant.user_name}</div>
+                    {typeof applicant.total_evaluation_score === 'number' && (
+                      <span
+                        className={`text-xs font-semibold rounded-full border px-2 py-0.5 ${
+                          applicant.total_evaluation_score >= 80
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                            : applicant.total_evaluation_score >= 60
+                            ? 'bg-yellow-50 border-yellow-200 text-yellow-600'
+                            : 'bg-red-50 border-red-200 text-red-500'
+                        }`}
+                      >
+                        {applicant.total_evaluation_score}
+                      </span>
+                    )}
+                  </div>
                 <div className="text-xs text-neutral-500 truncate">{applicant.user_email}</div>
                 <Badge className="mt-2 bg-neutral-100 border border-neutral-300 text-xs text-neutral-600">
                   {applicant.status}
